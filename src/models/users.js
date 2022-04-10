@@ -1,3 +1,4 @@
+const validator = require('validator')
 const mongoose = require('../db/mongoose')
 
 const User = mongoose.model('User', {
@@ -13,6 +14,7 @@ const User = mongoose.model('User', {
   password: {
     type: String,
     required: true,
+    minlength: 7,
     validate(value) {
       if (value === "password") throw new Error("Pasword is very weak") 
     }
