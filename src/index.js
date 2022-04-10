@@ -1,30 +1,73 @@
 const express = require('express');
 const User = require('./models/users')
-const Task = require('./models/tasks')
+const Task = require('./models/tasks');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// User API Routes
-app.post('/user', (req, res) => {
-  const newUser = new User(req.body);
+//--------------------------------
+//        User API Routes
+//--------------------------------
+// Fetch All existing users.
+app.get('/users', (req, res) => {
+  User.find({}).then((users) => {
+    res.send(users);
+  }).catch((e) => {
+    res.status(404).send();
+  });
+});
+// Fetch User by id
+app.get('/users/:id', (req, res) => {
+  const _id = req.params.id;
+
+  User.findById(_id).then((user) => {
+    res.send(user);
+  }).catch((e) => {
+    res.send(e);
+  });
+});
+// Create New User.
+app.post('/users', ({body:user}, res) => {
+  const newUser = new User(user);
 
   newUser.save().then(() => {
-    res.send(req.body);
-  }).catch(error => {
+    user.status = "Successfully added new user.";
+    res.status(201).send(user); //send response
+  }).catch((error) => {
     res.status(400).send(error);
   })
 });
 
-// Task API Routes
-app.post('/task', ({ body:task = '' }, res) => {
+//--------------------------------
+//       Task API Routes
+//--------------------------------
+// Fetch All existing tasks.
+app.get('/tasks', (req, res) => {
+  Task.find({}).then((tasks) => {
+    res.send(tasks);
+  }).catch((e) => {
+    res.status(404).send();
+  });
+});
+// Fetch User by id
+app.get('/tasks/:id', (req, res) => {
+  const _id = req.params.id;
+
+  Task.findById(_id).then((task) => {
+    res.send(task);
+  }).catch((e) => {
+    res.send(e);
+  });
+});
+// Create New Task
+app.post('/tasks', ({ body:task = '' }, res) => {
   const newTask = new Task(task);
 
   newTask.save().then(() => {
-    task.status = "Successfully Added this task.";
-    res.send(task); //send response
+      task.status = "Successfully added new task.";
+      res.status(201).send(task); //send response
   }).catch(error => {
     res.status(400).send(error);
   })
