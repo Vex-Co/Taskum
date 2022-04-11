@@ -39,7 +39,21 @@ app.post('/users', ({body:user}, res) => {
     res.status(400).send(error);
   })
 });
-
+// Delete User By ID
+app.post('/users/delete/:id', (req, res) => {
+  const _id = req.params.id;
+  User.findByIdAndDelete({_id:_id}).then((deletedUser) => { // on Success
+    if (!deletedUser) { // when task not found
+      deletedUser = {error : 'No user found with this id.'}
+    }
+    res.status(200).send(deletedUser);
+  }).catch(e => { // On Error
+    console.log(e);
+    res.status(500).send({
+      error: 'Please provide correct id.'
+    });
+  })
+});
 //--------------------------------
 //       Task API Routes
 //--------------------------------
@@ -70,6 +84,21 @@ app.post('/tasks', ({ body:task = '' }, res) => {
       res.status(201).send(task); //send response
   }).catch(error => {
     res.status(400).send(error);
+  })
+});
+// Delete Task By ID
+app.post('/tasks/delete/:id', (req, res) => {
+  const _id = req.params.id;
+  Task.findByIdAndDelete({_id:_id}).then((deletedTask) => { // on Success
+    if (!deletedTask) { // when task not found
+      deletedTask = {error : 'No task found with this id.'}
+    }
+    res.status(200).send(deletedTask);
+  }).catch(e => { // On Error
+    console.log(e);
+    res.status(500).send({
+      error: 'Please provide correct id.'
+    });
   })
 });
 
