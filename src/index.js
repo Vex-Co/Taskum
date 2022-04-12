@@ -1,6 +1,7 @@
 const express = require('express');
 const User = require('./models/users')
 const Task = require('./models/tasks');
+const { findByIdAndDelete } = require('./models/users');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -11,95 +12,108 @@ app.use(express.json());
 //        User API Routes
 //--------------------------------
 // Fetch All existing users.
-app.get('/users', (req, res) => {
-  User.find({}).then((users) => {
-    res.send(users);
-  }).catch((e) => {
-    res.status(404).send();
-  });
+app.get('/users', async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).send(users);
+  } catch (e) {
+    res.status(404).send(e);
+  }
 });
 // Fetch User by id
-app.get('/users/:id', (req, res) => {
+app.get('/users/:id', async (req, res) => {
   const _id = req.params.id;
 
-  User.findById(_id).then((user) => {
-    res.send(user);
-  }).catch((e) => {
-    res.send(e);
-  });
+  try {
+    const user = await User.findById(_id);
+    if (!user) {
+      throw new Error();
+    }
+    res.status(200).send(user);
+  } catch (e) {
+    res.status(404).send(e);
+  }
 });
 // Create New User.
-app.post('/users', ({body:user}, res) => {
+app.post('/users', async ({body:user}, res) => {
   const newUser = new User(user);
 
-  newUser.save().then(() => {
-    user.status = "Successfully added new user.";
-    res.status(201).send(user); //send response
-  }).catch((error) => {
-    res.status(400).send(error);
-  })
+  try {
+    await newUser.save();
+    user.msg = "Successfully Added New User.";
+    res.status(201).send(user);
+  } catch (e) {
+    res.status(500).send();
+  }
 });
 // Delete User By ID
-app.post('/users/delete/:id', (req, res) => {
+app.post('/users/delete/:id', async (req, res) => {
   const _id = req.params.id;
-  User.findByIdAndDelete({_id:_id}).then((deletedUser) => { // on Success
-    if (!deletedUser) { // when task not found
-      deletedUser = {error : 'No user found with this id.'}
+
+  try {
+    const deletedUser = await User.findByIdAndDelete({_id});
+
+    if (!deletedUser) {
+      throw new Error();
     }
     res.status(200).send(deletedUser);
-  }).catch(e => { // On Error
-    console.log(e);
-    res.status(500).send({
-      error: 'Please provide correct id.'
-    });
-  })
+  } catch (e) {
+    res.status(400).send();
+  }
 });
 //--------------------------------
 //       Task API Routes
 //--------------------------------
 // Fetch All existing tasks.
-app.get('/tasks', (req, res) => {
-  Task.find({}).then((tasks) => {
-    res.send(tasks);
-  }).catch((e) => {
-    res.status(404).send();
-  });
+app.get('/tasks', async (req, res) => {
+  try {
+    const tasks = await Task.find({});
+    res.status(200).send(tasks);
+  } catch (e) {
+    res.status(400).send();
+  }
 });
 // Fetch User by id
-app.get('/tasks/:id', (req, res) => {
+app.get('/tasks/:id', async (req, res) => {
   const _id = req.params.id;
 
-  Task.findById(_id).then((task) => {
-    res.send(task);
-  }).catch((e) => {
-    res.send(e);
-  });
+  try {
+    const task = await Task.findById(_id);
+    if (!task) {
+      throw new Error();
+    }
+    res.status(200).send(task);
+  } catch (e) {
+    res.status(400).send();
+  }
 });
 // Create New Task
-app.post('/tasks', ({ body:task = '' }, res) => {
+app.post('/tasks', async ({ body:task = '' }, res) => {
   const newTask = new Task(task);
 
-  newTask.save().then(() => {
-      task.status = "Successfully added new task.";
-      res.status(201).send(task); //send response
-  }).catch(error => {
-    res.status(400).send(error);
-  })
+  try {
+    await newTask.save();
+    task.msg = "Successfully added new task.";
+    res.status(201).send(task); //send response
+  } catch (e) {
+    res.status(400).send();
+  } 
 });
 // Delete Task By ID
-app.post('/tasks/delete/:id', (req, res) => {
+app.post('/tasks/delete/:id', async (req, res) => {
   const _id = req.params.id;
-  Task.findByIdAndDelete({_id:_id}).then((deletedTask) => { // on Success
-    if (!deletedTask) { // when task not found
-      deletedTask = {error : 'No task found with this id.'}
+
+  try {
+    const deletedTask = await Task.findByIdAndDelete({_id:_id});
+
+    if (!deletedTask) {
+      throw new Error();
     }
+
     res.status(200).send(deletedTask);
-  }).catch(e => { // On Error
-    console.log(e);
-    res.status(500).send({
-      error: 'Please provide correct id.'
-    });
-  })
+  } catch (e) {
+    res.status(400).send(e);
+  }
 });
 
 app.listen(port, () => {
