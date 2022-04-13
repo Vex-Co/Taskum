@@ -1,7 +1,7 @@
 const express = require('express');
 const User = require('./models/users')
 const Task = require('./models/tasks');
-const { findByIdAndDelete } = require('./models/users');
+const { update } = require('./models/users');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -47,7 +47,7 @@ app.post('/users', async ({body:user}, res) => {
   }
 });
 // Delete User By ID
-app.post('/users/delete/:id', async (req, res) => {
+app.delete('/users/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
@@ -59,6 +59,25 @@ app.post('/users/delete/:id', async (req, res) => {
     res.status(200).send(deletedUser);
   } catch (e) {
     res.status(400).send();
+  }
+});
+// Update Existing User.
+app.patch('/users/:id', async (req, res) => {
+  const _id = req.params.id;
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['email', 'password'];
+
+  const isValid = updates.every((value) => allowedUpdates.includes(value))
+  if (!isValid) {
+    return res.status(400).send({error: 'Please Provide the correct parameters to update.'});
+  }
+  console.log(_id);
+
+  try {
+    const user = await User.findByIdAndUpdate(_id, req.body, {new:true, runValidators: true});
+    res.status(200).send(user);
+  } catch (e) {
+    res.status(404).send(e);
   }
 });
 //--------------------------------
@@ -99,8 +118,26 @@ app.post('/tasks', async ({ body:task = '' }, res) => {
     res.status(400).send();
   } 
 });
+// Update Existing Task.
+app.patch('/tasks/:id', async (req, res) => {
+  const _id = req.params.id;
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['description', 'completed'];
+
+  const isValid = updates.every((value) => allowedUpdates.includes(value));
+  if (!isValid) {
+    return res.status(400).send({error: 'Please Provide the correct parameters to update.'});
+  }
+
+  try {
+    const task = await Task.findByIdAndUpdate(_id, req.body, {new:true, runValidators: true});
+    res.status(200).send(task);
+  } catch (e) {
+    res.status(404).send(e);
+  }
+});
 // Delete Task By ID
-app.post('/tasks/delete/:id', async (req, res) => {
+app.delete('/tasks/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
