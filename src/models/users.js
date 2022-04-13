@@ -1,7 +1,8 @@
 const validator = require('validator')
 const mongoose = require('../db/mongoose')
+const bcrypt = require('bcrypt')
 
-const User = mongoose.model('User', {
+const userSchema = mongoose.Schema({
   email: {
     type: String,
     required: true,
@@ -19,5 +20,18 @@ const User = mongoose.model('User', {
       if (value === "password") throw new Error("Pasword is very weak") 
     }
   }
-});
-module.exports = User;
+})
+
+// Middleware
+userSchema.pre('save', async function (next) {  //not arrow function because "this" binding is important
+  const user = this
+
+  if (user.isModified('password')) {
+    user.password = await bcrypt.hash(user.password, 8)
+  }
+
+  next()
+})
+
+const User = mongoose.model('User', userSchema)
+module.exports = User

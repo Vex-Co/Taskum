@@ -33,8 +33,7 @@ router.post('/users', async ({body:user}, res) => {
     const newUser = new User(user);
 
     try {
-        await newUser.save();
-        user.msg = "Successfully Added New User.";
+        user = await newUser.save();
         res.status(201).send(user);
     } catch (e) {
         res.status(500).send();
@@ -65,10 +64,14 @@ router.patch('/users/:id', async (req, res) => {
     if (!isValid) {
         return res.status(400).send({error: 'Please Provide the correct parameters to update.'});
     }
-    console.log(_id);
 
     try {
-        const user = await User.findByIdAndUpdate(_id, req.body, {new:true, runValidators: true});
+        const user = await User.findById(_id);
+        updates.forEach((update) => {
+            user[update] = req.body[update]
+        })
+        await user.save();
+
         res.status(200).send(user);
     } catch (e) {
         res.status(404).send(e);
