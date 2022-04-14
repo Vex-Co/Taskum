@@ -10,7 +10,7 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredantials(req.body.email, req.body.password)
         user.generateAuthToken()
-        newUser.save()
+        user.save()
         res.send(user)
     } catch (e) {
         res.status(400).send(e)
