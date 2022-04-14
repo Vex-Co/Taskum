@@ -1,10 +1,18 @@
 const validator = require('validator')
 const mongoose = require('../db/mongoose')
 const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 const userSchema = mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+    lowercase: true
+  },
   email: {
     type: String,
+    unique: true,
     required: true,
     trim: true,
     lowercase: true,
@@ -19,9 +27,36 @@ const userSchema = mongoose.Schema({
     validate(value) {
       if (value === "password") throw new Error("Pasword is very weak") 
     }
-  }
+  },
+  tokens: [{
+    token: {
+      type: String,
+      required: true
+    }
+  }]
 })
+// generateAuthToken() - Custom method
+userSchema.methods.generateAuthToken = function () {
+  const user = this
 
+  // Not secure but will make it.
+  const token = jwt.sign({_id: user._id.toString()}, "someSecretKey")
+  user.tokens = user.tokens.concat({token})
+
+  return user
+}
+// findByCredentials() - Custom Static
+userSchema.statics.findByCredantials = async (email, password) => {
+  const user = await User.findOne({email});
+  if (!user) {
+    throw new Error("No Match found!");
+  }
+  const passMatch = bcrypt.compare(password, user.password);
+  if (!passMatch) {
+    throw new Error("No Match found!");
+  }
+  return user;
+}
 // Middleware
 userSchema.pre('save', async function (next) {  //not arrow function because "this" binding is important
   const user = this
