@@ -36,7 +36,7 @@ const userSchema = mongoose.Schema({
   }]
 })
 // generateAuthToken() - Custom method
-userSchema.methods.generateAuthToken = function () {
+userSchema.methods.generateAuthToken = async function () {
   const user = this
 
   // Not secure but will make it.

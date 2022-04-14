@@ -10,10 +10,22 @@ router.post('/users/login', async (req, res) => {
     try {
         const user = await User.findByCredantials(req.body.email, req.body.password)
         user.generateAuthToken()
-        user.save()
+        newUser.save()
         res.send(user)
     } catch (e) {
         res.status(400).send(e)
+    }
+})
+// Signup for New Users
+router.post('/users', async ({body:user}, res) => {
+    const newUser = new User(user)
+
+    try {
+        newUser.generateAuthToken();
+        await newUser.save();
+        res.status(201).send(newUser)
+    } catch (e) {
+        res.status(400).send()
     }
 })
 // Fetch All existing users.
@@ -37,17 +49,6 @@ router.get('/users/:id', async (req, res) => {
         res.status(200).send(user)
     } catch (e) {
         res.status(404).send(e)
-    }
-})
-// Create New User.
-router.post('/users', async ({body:user}, res) => {
-    const newUser = new User(user)
-
-    try {
-        user = await newUser.save()
-        res.status(201).send(user)
-    } catch (e) {
-        res.status(400).send()
     }
 })
 // Delete User By ID
