@@ -1,5 +1,7 @@
 const User = require('../models/users')
 const express = require('express')
+const auth = require('../middleware/auth')  // Middleware
+
 const router = new express.Router()
 
 //--------------------------------
@@ -28,14 +30,9 @@ router.post('/users', async ({body:user}, res) => {
         res.status(400).send()
     }
 })
-// Fetch All existing users.
-router.get('/users', async (req, res) => {
-    try {
-        const users = await User.find({})
-        res.status(200).send(users)
-    } catch (e) {
-        res.status(404).send(e)
-    }
+// Fetch Me (logged in user).
+router.get('/users/me', auth, async (req, res) => {
+    res.send(req.user)
 })
 // Fetch User by id
 router.get('/users/:id', async (req, res) => {
