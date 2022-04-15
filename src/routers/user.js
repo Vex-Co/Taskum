@@ -28,6 +28,16 @@ router.post('/users/logout', auth, async (req, res) => {
         res.status(500).send()
     }
 })
+// Logout All - logout from all devices
+router.post('/users/logoutAll', auth, async (req, res) => {
+    try {
+        req.user.tokens = []
+        await req.user.save();
+        res.send();
+    } catch (e) {
+        res.status(500).send()
+    }
+})
 // Signup for New Users
 router.post('/users', async ({body:user}, res) => {
     const newUser = new User(user)
