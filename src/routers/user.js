@@ -18,6 +18,16 @@ router.post('/users/login', async (req, res) => {
         res.status(400).send(e)
     }
 })
+// Logout
+router.post('/users/logout', auth, async (req, res) => {
+    try {
+        req.user.tokens = req.user.tokens.filter(token => req.token != token.token)
+        await req.user.save();
+        res.send()
+    } catch (e) {
+        res.status(500).send()
+    }
+})
 // Signup for New Users
 router.post('/users', async ({body:user}, res) => {
     const newUser = new User(user)
