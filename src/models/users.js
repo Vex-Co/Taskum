@@ -35,6 +35,11 @@ const userSchema = mongoose.Schema({
     }
   }]
 })
+userSchema.virtual('tasks', {
+  ref: 'Task',
+  localField: '_id',
+  foreignField: 'owner'
+})
 // Hiding Private data like token and password hash
 userSchema.methods.toJSON = function () {
   const user = this

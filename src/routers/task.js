@@ -1,43 +1,35 @@
 const Task = require('../models/tasks');
 const express = require('express');
+const auth = require('../middleware/auth');
+const User = require('../models/users');
+
 const router = new express.Router();
 
 //--------------------------------
 //       Task API Routes
 //--------------------------------
 // Fetch All existing tasks.
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', auth,  async (req, res) => {
   try {
-    const tasks = await Task.find({});
-    res.status(200).send(tasks);
-  } catch (e) {
-    res.status(400).send();
-  }
-});
-// Fetch User by id
-router.get('/tasks/:id', async (req, res) => {
-  const _id = req.params.id;
+    const user = await User.findById(req.user._id).populate('tasks')
 
-  try {
-    const task = await Task.findById(_id);
-    if (!task) {
-      throw new Error();
-    }
-    res.status(200).send(task);
+    res.status(200).send(user.tasks);
   } catch (e) {
     res.status(400).send();
   }
 });
 // Create New Task
-router.post('/tasks', async ({ body:task = '' }, res) => {
-  const newTask = new Task(task);
+router.post('/tasks', auth, async (req, res) => {
+  const newTask = new Task({
+      ...req.body,
+      owner: req.user._id
+  });
 
   try {
     await newTask.save();
-    task.msg = "Successfully added new task.";
-    res.status(201).send(task); //send response
+    res.status(201).send(newTask); //send response
   } catch (e) {
-    res.status(400).send();
+    res.status(400).send(e);
   } 
 });
 // Update Existing Task.

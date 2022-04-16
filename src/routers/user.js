@@ -78,10 +78,9 @@ router.delete('/users/me',auth , async (req, res) => {
     }
 })
 // Update Existing User.
-router.patch('/users/:id', async (req, res) => {
-    const _id = req.params.id
+router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body)
-    const allowedUpdates = ['email', 'password']
+    const allowedUpdates = ['name', 'email', 'password']
 
     const isValid = updates.every((value) => allowedUpdates.includes(value))
     if (!isValid) {
@@ -89,7 +88,8 @@ router.patch('/users/:id', async (req, res) => {
     }
 
     try {
-        const user = await User.findById(_id)
+        const user = req.user
+        console.log(user)
         updates.forEach((update) => {
             user[update] = req.body[update]
         })
