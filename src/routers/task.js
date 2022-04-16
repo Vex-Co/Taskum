@@ -1,7 +1,6 @@
 const Task = require('../models/tasks')
 const express = require('express')
 const auth = require('../middleware/auth')
-const User = require('../models/users')
 
 const router = new express.Router()
 
