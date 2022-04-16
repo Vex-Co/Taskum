@@ -9,8 +9,17 @@ const router = new express.Router()
 //--------------------------------
 // Fetch All tasks of Current User
 router.get('/tasks', auth,  async (req, res) => {
+  const match = {}
+
+  if (req.query.completed) {
+    match.completed = req.query.completed === 'true'
+  }
+
   try {
-    const user = await req.user.populate('tasks')
+    const user = await req.user.populate({
+      path: 'tasks',
+      match: match
+    })
 
     res.status(200).send(user.tasks)
   } catch (e) {
