@@ -43,14 +43,14 @@ router.post('/users', async ({body:user}, res) => {
     const newUser = new User(user)
 
     try {
-        newUser.generateAuthToken();
+        const token = await newUser.generateAuthToken();
         await newUser.save();
-        res.status(201).send(newUser)
+        res.status(201).send({newUser, token})
     } catch (e) {
         res.status(400).send()
     }
 })
-// Fetch Me (logged in user).
+// Show Profile (logged in user).
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
 })
@@ -68,16 +68,10 @@ router.get('/users/:id', async (req, res) => {
         res.status(404).send(e)
     }
 })
-// Delete User By ID
-router.delete('/users/:id', async (req, res) => {
-    const _id = req.params.id
-
+// Delete logged in user
+router.delete('/users/me',auth , async (req, res) => {
     try {
-        const deletedUser = await User.findByIdAndDelete({_id})
-
-        if (!deletedUser) {
-        throw new Error()
-        }
+        const deletedUser = await req.user.remove()
         res.status(200).send(deletedUser)
     } catch (e) {
         res.status(400).send()
