@@ -2,6 +2,7 @@ const User = require('../models/users')
 const express = require('express')
 const multer = require('multer')
 const sharp = require('sharp')
+const email = require('../emails/account')
 const auth = require('../middleware/auth')  // Middleware
 
 const router = new express.Router()
@@ -47,9 +48,17 @@ router.post('/users', async ({body:user}, res) => {
     try {
         const token = await newUser.generateAuthToken();
         await newUser.save();
+
+        const firstName = newUser.name.split(' ')[0]
+        // Send Welcome Email
+        email.sendEmail({
+            email: newUser.email,
+            subject: `Welcome ${firstName}`,
+            text: `Welcome to Taskum, ${firstName}. We are happy to see your intrest toward organizing your life 😊. Wish you all the best.`
+        })
         res.status(201).send({newUser, token})
     } catch (e) {
-        res.status(400).send()
+        res.status(400).send(e)
     }
 })
 // Show Profile (logged in user).
@@ -60,6 +69,15 @@ router.get('/users/me', auth, async (req, res) => {
 router.delete('/users/me',auth , async (req, res) => {
     try {
         const deletedUser = await req.user.remove()
+
+        const firstName = deletedUser.name.split(' ')[0]
+        email.sendEmail({
+            email: deletedUser.email,
+            subject: `Hello ${firstName}`,
+            text: "It's very sad to see you leaving us. \
+                   I hope you are doing great in your life. \
+                   See you soon. Wish you all the best."
+        })
         res.status(200).send(deletedUser)
     } catch (e) {
         res.status(400).send()

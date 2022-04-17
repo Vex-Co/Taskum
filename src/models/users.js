@@ -9,7 +9,6 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     trim: true,
-    lowercase: true
   },
   email: {
     type: String,
@@ -82,6 +81,8 @@ userSchema.statics.findByCredantials = async (email, password) => {
 // Middleware
 userSchema.pre('save', async function (next) {  //not arrow function because "this" binding is important
   const user = this
+  
+  user.name = user.name.replace(/\b(\w)/g, s => s.toUpperCase()); // Capitalize the name
 
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8)
