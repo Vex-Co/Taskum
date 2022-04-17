@@ -54,20 +54,6 @@ router.post('/users', async ({body:user}, res) => {
 router.get('/users/me', auth, async (req, res) => {
     res.send(req.user)
 })
-// Fetch User by id
-router.get('/users/:id', async (req, res) => {
-    const _id = req.params.id
-
-    try {
-        const user = await User.findById(_id)
-        if (!user) {
-        throw new Error()
-        }
-        res.status(200).send(user)
-    } catch (e) {
-        res.status(404).send(e)
-    }
-})
 // Delete logged in user
 router.delete('/users/me',auth , async (req, res) => {
     try {
