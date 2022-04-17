@@ -3,14 +3,14 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'taskum.vex@gmail.com',
-        pass: `frqqrjgtibagepwc`, // can't login with that password
+        user: process.env.GMAIL_EMAIL,
+        pass: process.env.GMAIL_PASSWORD,
     },
 });
 
 const sendEmail = (data) => {
     transporter.sendMail({
-        from: 'Vex <taskum.vex@gmail.com>',
+        from: `${process.env.APP_NAME} <${process.env.GMAIL_EMAIL}>`,
         to: data.email, 
         subject: data.subject, 
         text: data.text, 

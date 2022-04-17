@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
 
-mongoose.connect("mongodb://127.0.0.1:27017/Taskum");
+mongoose.connect(process.env.MONGO_DB_PATH);
 
 module.exports = mongoose;
