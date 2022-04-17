@@ -72,7 +72,7 @@ userSchema.statics.findByCredantials = async (email, password) => {
   if (!user) {
     throw new Error("No Match found!");
   }
-  const passMatch = bcrypt.compare(password, user.password);
+  const passMatch = await bcrypt.compare(password, user.password);
   if (!passMatch) {
     throw new Error("No Match found!");
   }
